@@ -2,7 +2,7 @@
 
 while ($true) {
     $csv = Import-Csv -Path P:\import-users.csv
-    $psts = $csv.'﻿User Name' | ForEach-Object {
+    $psts = $csv.'User Name' | ForEach-Object {
         $_ -replace "@.*$",".pst"
     }
     $files = Get-ChildItem -Path $srcDir

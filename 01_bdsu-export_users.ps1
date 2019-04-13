@@ -27,7 +27,7 @@ $import_csv = $mailboxes | Where-Object {
     Write-Host $_.DisplayName
     $aaduser = $aadusers[$_.UserPrincipalName]
     [psCustomObject]@{
-        "﻿User Name" = $aaduser.userPrincipalName
+        "User Name" = $aaduser.userPrincipalName
         "First Name" = $aaduser.givenName
         "Last Name" = $aaduser.surname
         "Display Name" = $aaduser.DisplayName
