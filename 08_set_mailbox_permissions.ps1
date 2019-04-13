@@ -8,9 +8,17 @@ if ($sessions.ComputerName -notcontains "outlook.office365.com") {
     Import-PSSession $Session
 }
 
-Connect-AzureAD -Credential $credentials
+$domain = Read-Host -Prompt "Aktuelle Domain"
+$mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"} | sort DisplayName
 
-
+do {
+    $admin = Read-Host -Prompt "User, der berechtigt werden soll"
+    if ($admin) {
+        $mailboxes | ForEach-Object {
+            Add-MailboxPermission -AccessRights FullAccess -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
+        }
+    }
+} while ($admin)
 
 
 if ($Host.Name -eq "ConsoleHost") {

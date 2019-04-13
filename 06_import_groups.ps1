@@ -12,9 +12,9 @@ if ($sessions.ComputerName -notcontains "outlook.office365.com") {
 $csv = Import-Csv -Path P:\groups.csv
 
 Write-Host "Erstelle Gruppen"
-$csv | Where-Object {$_.proxyAddresses -like "*|*"} | ForEach-Object {
+$csv | ForEach-Object {
     $_
-    New-DistributionGroup -DisplayName $_.name -Type Security -Name $_.name -PrimarySmtpAddress $_.mail
+    New-DistributionGroup -DisplayName $_.name -Type Security -Name $_.name -PrimarySmtpAddress $_.mail -RequireSenderAuthenticationEnabled $false
 } | ft name,mail
 
 

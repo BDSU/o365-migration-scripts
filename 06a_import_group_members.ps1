@@ -2,33 +2,28 @@
     $credentials = Get-Credential
 }
 
-Connect-AzureAD -Credential $credentials
-
+$sessions = Get-PSSession
+if ($sessions.ComputerName -notcontains "outlook.office365.com") {
+    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
+    Import-PSSession $Session
+}
 
 $csv = Import-Csv -Path P:\groups.csv
 
-Write-Host "Lade Benutzer und Gruppen"
-
-$users = Get-AzureADUser -All $true
-$groups = Get-AzureADGroup -All $true | Where-Object {"smtp:$($_.Mail)" -iin $csv.mail}
-
 Write-Host "Füge Mitglieder zu Gruppen hinzu"
 
-$groups | ForEach-Object {
+$csv | ForEach-Object {
     $group = $_
+    Write-Host $group.name
 
-    $groups | Where-Object {
-        $group.subgroups -and $_.Mail -in $group.subgroups.Split("|")
-    } | ForEach-Object {
-        Write-Host "Adding '$($_.DisplayName)' to $($group.DisplayName)"
-        Add-AzureADGroupMember -ObjectId $group.ObjectId -RefObjectId $_.ObjectId
+    $group.subgroups.Split("|") | Where-Object {$_} | ForEach-Object {
+        Write-Host "`t$_"
+        Add-DistributionGroupMember -Identity $group.mail -Member $_
     }
 
-    $users | Where-Object {
-        $group.members -and $_.UserPrincipalName -in $group.members.Split("|")
-    } | ForEach-Object {
-        Write-Host "Adding '$($_.DisplayName)' to $($group.DisplayName)"
-        Add-AzureADGroupMember -ObjectId $group.ObjectId -RefObjectId $_.ObjectId
+    $group.members.Split("|") | Where-Object {$_} | ForEach-Object {
+        Write-Host "`t$_"
+        Add-DistributionGroupMember -Identity $group.mail -Member $_
     }
 }
 

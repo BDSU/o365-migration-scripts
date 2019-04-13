@@ -1,6 +1,8 @@
-﻿$credentials = Get-Credential
-$session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.outlook.com/powershell -Credential $credentials -Authentication Basic -AllowRedirection
-Import-PSSession $session
+﻿$sessions = Get-PSSession
+if ($sessions.ComputerName -notcontains "outlook.office365.com") {
+    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
+    Import-PSSession $Session
+}
 
 $city = Read-Host -Prompt "Stadt"
 $domain = Read-Host -Prompt "JE-Domain"

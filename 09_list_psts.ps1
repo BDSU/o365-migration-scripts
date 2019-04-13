@@ -1,16 +1,16 @@
 ﻿$srcDir = "P:\PSTs"
 
 while ($true) {
-    $csv = Import-Csv -Path P:\import-mailboxes.csv
-    $psts = $csv | ForEach-Object {
-        $_.Mailbox -replace "@.*$",".pst"
+    $csv = Import-Csv -Path P:\import-users.csv
+    $psts = $csv.'﻿User Name' | ForEach-Object {
+        $_ -replace "@.*$",".pst"
     }
     $files = Get-ChildItem -Path $srcDir
 
     $diff = Compare-Object -ReferenceObject $psts -DifferenceObject $files.Name
 
-    $missing = $diff | Where-Object {$_.SideIndicator -eq "=>"}
-    $extras = $diff | Where-Object {$_.SideIndicator -eq "<="}
+    $extras = $diff | Where-Object {$_.SideIndicator -eq "=>"}
+    $missing = $diff | Where-Object {$_.SideIndicator -eq "<="}
 
     if ($missing) {
         Write-Host "Diese Dateien fehlen noch"

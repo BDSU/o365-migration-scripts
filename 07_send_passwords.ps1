@@ -29,16 +29,13 @@
         -SmtpServer "smtp.office365.com" `
         -Port 587 `
         -UseSsl `
-        -Credential $credentials
+        -Credential $sender_credentials
 
     return $?
 }
 
-if (!$credentials) {
-    $credentials = Get-Credential
-}
-
-Connect-AzureAD -Credential $credentials
+$sender_credentials = Get-Credential
+Connect-AzureAD -Credential $sender_credentials
 
 $csv = Import-Csv -Path P:\passwords.csv | sort Anzeigename
 $private_mails = @{}

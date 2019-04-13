@@ -19,7 +19,7 @@ $groups = Get-DistributionGroup -ResultSize Unlimited | Where-Object {
 }
 $groups | ForEach-Object {
     $_
-    $mails = $_.EmailAddresses | ForEach-Object {
+    $proxyAddresses = $_.EmailAddresses | ForEach-Object {
         $_ -replace "@$old_domain","@$new_domain"
     }
     Set-DistributionGroup -EmailAddresses $proxyAddresses -Identity $_.PrimarySmtpAddress
