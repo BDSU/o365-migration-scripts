@@ -16,11 +16,6 @@ $csv | ForEach-Object {
     $group = $_
     Write-Host $group.name
 
-    $group.subgroups.Split("|") | Where-Object {$_} | ForEach-Object {
-        Write-Host "`t$_"
-        Add-DistributionGroupMember -Identity $group.mail -Member $_
-    }
-
     $group.members.Split("|") | Where-Object {$_} | ForEach-Object {
         Write-Host "`t$_"
         Add-DistributionGroupMember -Identity $group.mail -Member $_

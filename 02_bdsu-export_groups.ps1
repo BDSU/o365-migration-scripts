@@ -13,14 +13,18 @@ $csv = $groups | Where-Object {
     $_.Mail -like "*@$domain"
 } | ForEach-Object {
     Write-Host $_.DisplayName
-    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId
-    $groups = $members | Where-Object {$_.ObjectType -eq "Group"}
+    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId | ForEach-Object {
+        if ($_.ObjectType -eq "Group") {
+            $_.Mail
+        } else {
+            $_.UserPrincipalName
+        }
+    }
     [psCustomObject]@{
         name = $_.DisplayName
         mail = $_.Mail
         proxyAddresses = $_.proxyAddresses -join "|"
-        members = $members.userPrincipalName -join "|"
-        subgroups = $groups.mail -join "|"
+        members = $members -join "|"
     }
 }
 
