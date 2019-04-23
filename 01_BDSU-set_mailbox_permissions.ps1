@@ -15,7 +15,7 @@ do {
     $admin = Read-Host -Prompt "User, der berechtigt werden soll"
     if ($admin) {
         $mailboxes | ForEach-Object {
-            Add-MailboxPermission -AccessRights FullAccess -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
+            Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
         }
     }
 } while ($admin)
