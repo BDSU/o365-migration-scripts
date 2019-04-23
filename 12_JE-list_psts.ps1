@@ -15,6 +15,7 @@ while ($true) {
     if ($missing) {
         Write-Host "Diese Dateien fehlen noch"
         $missing | ft -AutoSize InputObject
+        Write-Host "Insgesamt noch $($missing.Count) Datei(en)"
     } else {
         Write-Host -ForegroundColor Green "Alle Postfächer exportiert"
     }
