@@ -12,7 +12,7 @@ if ($sessions.ComputerName -notcontains "outlook.office365.com") {
 $csv = Import-Csv -Path P:\mailbox-settings.csv
 $csv | ForEach-Object {
     $_
-    $proxyAddress = $_.proxyAddresses.Split('|')
+    $proxyAddresses = $_.proxyAddresses.Split('|')
     Set-Mailbox -EmailAddresses $proxyAddresses -Identity $_.UserPrincipalName
     Set-MailboxRegionalConfiguration -Identity $_.UserPrincipalName -DateFormat $_.DateFormat -Language $_.Language -TimeFormat $_.TimeFormat -LocalizeDefaultFolderName -TimeZone $_.TimeZone
 } | ft
