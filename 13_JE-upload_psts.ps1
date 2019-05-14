@@ -1,7 +1,7 @@
 ﻿$srcDir = "P:\PSTs"
 $logfile = "P:\azure_copy.log"
 $sasUrl = Read-Host -Prompt "SAS-URL"
-& 'C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' /Y /source:$srcDir /V:$logfile /Dest:"$sasUrl"
+& 'C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' /Y /source:$srcDir /V:$logfile /Dest:"$sasUrl" /Pattern '*.pst'
 
 
 if ($Host.Name -eq "ConsoleHost") {
