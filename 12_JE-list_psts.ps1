@@ -5,9 +5,9 @@ while ($true) {
     $psts = $csv.'User Name' | ForEach-Object {
         $_ -replace "@.*$",".pst"
     }
-    $files = Get-ChildItem -Path $srcDir
+    $files = Get-ChildItem -Path $srcDir -Filter "*.pst" -name
 
-    $diff = Compare-Object -ReferenceObject $psts -DifferenceObject $files.Name
+    $diff = Compare-Object -ReferenceObject $psts -DifferenceObject $files
 
     $extras = $diff | Where-Object {$_.SideIndicator -eq "=>"}
     $missing = $diff | Where-Object {$_.SideIndicator -eq "<="}
