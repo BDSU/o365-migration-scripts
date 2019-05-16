@@ -20,7 +20,7 @@ $mailboxes | ForEach-Object {
     $upn = $_.UserPrincipalName -replace "@$old_domain","@$new_domain"
     $proxyAddresses = $_.EmailAddresses | ForEach-Object {
         $_ -replace "@$old_domain","@$new_domain"
-    }
+    } | sort -Unique
     Set-AzureADUser -ObjectId $_.UserPrincipalName -UserPrincipalName $upn
     Set-Mailbox -EmailAddresses $proxyAddresses -Identity $_.UserPrincipalName
 } | ft
