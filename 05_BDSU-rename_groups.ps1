@@ -22,7 +22,7 @@ $groups | ForEach-Object {
     $proxyAddresses = $_.EmailAddresses | ForEach-Object {
         $_ -replace "@$old_domain","@$new_domain"
     }
-    Set-DistributionGroup -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.PrimarySmtpAddress
+    Set-DistributionGroup -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.PrimarySmtpAddress -BypassSecurityGroupManagerCheck:$true
 } | ft
 
 
