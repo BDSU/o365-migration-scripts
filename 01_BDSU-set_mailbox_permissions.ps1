@@ -11,14 +11,16 @@ if ($sessions.ComputerName -notcontains "outlook.office365.com") {
 $domain = Read-Host -Prompt "Aktuelle Domain"
 $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"} | sort DisplayName
 
-do {
-    $admin = Read-Host -Prompt "User, der berechtigt werden soll"
-    if ($admin) {
-        $mailboxes | ForEach-Object {
-            Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
-        }
+$i = 0
+$mailboxes | ForEach-Object {
+    if ($i % 20 -eq 0) {
+        $admin = Read-Host -Prompt "User, der berechtigt werden soll für User $($i + 1) - $($i + 21)"
     }
-} while ($admin)
+    if ($admin) {
+        Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
+    }
+    $i++
+}
 
 
 if ($Host.Name -eq "ConsoleHost") {
