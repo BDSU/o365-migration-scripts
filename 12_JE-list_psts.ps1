@@ -6,6 +6,9 @@ while ($true) {
         $_ -replace "@.*$",".pst"
     }
     $files = Get-ChildItem -Path $srcDir -Filter "*.pst" -name
+    if (!$files) {
+        $files = @()
+    }
 
     $diff = Compare-Object -ReferenceObject $psts -DifferenceObject $files
 
