@@ -47,7 +47,7 @@ if ($extras) {
 $csv = $mapping | ConvertTo-Csv -Delimiter "," -NoTypeInformation
 $csv = $csv -replace '"',''
 
-#$csv | Out-File -Encoding utf8 "$srcDir/mapping.csv"
+$csv | Out-File -Encoding utf8 "$srcDir/mapping.csv"
 
 if ($missing -or $extras) {
     Write-Warning "Bitte überprüfe obenstehende Warnungen und verwende die mappings.csv nur, wenn diese geklärt sind; du kannst die mappings.csv ggf. manuell korrigieren."
