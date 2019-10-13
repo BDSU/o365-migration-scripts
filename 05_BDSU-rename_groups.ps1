@@ -26,6 +26,18 @@ $groups | ForEach-Object {
 } | ft
 
 
+$ogroups = Get-UnifiedGroup -ResultSize Unlimited | Where-Object {
+    $_.PrimarySmtpAddress -like "*@$old_domain"
+}
+$ogroups | ForEach-Object {
+    $_
+    $proxyAddresses = $_.PrimarySmtpAddress | ForEach-Object {
+        $_ -replace "@$old_domain","@$new_domain"
+    }
+    Set-UnifiedGroup -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.PrimarySmtpAddress
+} | ft
+
+
 if ($Host.Name -eq "ConsoleHost") {
     Write-Host "Press any key to exit..."
     $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp") > $null
