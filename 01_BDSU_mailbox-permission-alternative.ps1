@@ -25,6 +25,7 @@
 ###################################
 
 $NUM_OF_ACCOUNTS = 4 
+$TIMEOUTS_SECS = 20
 
 $ErrorActionPreference = "Stop" #stop on error
 if (!$credentials) {
@@ -41,65 +42,77 @@ if ($sessions.ComputerName -notcontains "outlook.office365.com") {
 
 $domain = Read-Host -Prompt "Aktuelle Domain"
 
-if ($domain -gt 0) {
-
-    $jeId = $domain -replace ".de","" -replace ".com", ""
-
-    <#
-    [uint16] $bulkSize = Read-Host "Mailboxes per export account (default: 25)"
-    if ($bulkSize -eq 0) { $bulkSize = 25 }
-    #>
-
-    # data for migration accounts
-    $firstname = "Migration"
-    $lastname = "Account"
-    $displayName = "Migrationsaccount | " + $jeId
-    $adminMail = $credentials.UserName
-    
-    $uidPrefix = "migration." + $jeId
-    $migrationAccounts = @()
-
-    $password = Read-Host "Password for all migration accounts"
-
-
-    for($i = 0; $i -lt $NUM_OF_ACCOUNTS; $i++) { # [math]::Ceiling($userNum / $bulkSize)
-        $uid = $uidPrefix + $i
-        $mail = $uid + "@bdsu-connect.de"
-        $success = Create-Account $firstname $lastname $displayName $uid $mail $adminMail $password
-        if ($success) {
-            $migrationAccounts += @{"username" = $mail; "password" = $password}
-        } else {
-            Write-Host ("Unable to create user: " + $mail) -ForegroundColor Red
-        }
-    }
-
-    # time consuming  -> AD and Exchange can sync
-    $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"} | sort DisplayName
-
-    # hide admin accounts from address list
-    $migrationAccounts | ForEach-Object {
-        Set-Mailbox -Identity $_.username -HiddenFromAddressListsEnabled $true
-    }
-
-    $bulkSize = [math]::Floor($mailboxes.Length / $NUM_OF_ACCOUNTS)
-
-    $i = 0
-    $admincount = 0
-    $admin = $migrationAccounts[0]
-    $mailboxes | ForEach-Object {
-        if ($i % $bulkSize -eq 0 -and $i -lt ($bulkSize * $NUM_OF_ACCOUNTS)) {
-            $admin = $migrationAccounts[$admincount]
-            $admincount++
-        }
-        if ($admin) {
-            Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
-        }
-        $i++
-    }
-
-    $migrationAccounts | ForEach {[PSCustomObject]$_} | Format-Table -AutoSize
-
-} else {
+if (!$domain) {
     Write-Host "No domain provided. Please restart." -ForegroundColor Red
-} 
+    Exit
+}
+
+$jeId = $domain -replace ".de","" -replace ".com", ""
+
+<#
+[uint16] $bulkSize = Read-Host "Mailboxes per export account (default: 25)"
+if ($bulkSize -eq 0) { $bulkSize = 25 }
+#>
+
+# data for migration accounts
+$firstname = "Migration"
+$lastname = "Account"
+$displayName = "Migrationsaccount | " + $jeId
+$adminMail = $credentials.UserName
+
+$uidPrefix = "migration." + $jeId
+$migrationAccounts = @()
+
+$password = Read-Host "Password for all migration accounts"
+
+
+for($i = 0; $i -lt $NUM_OF_ACCOUNTS; $i++) { # [math]::Ceiling($userNum / $bulkSize)
+    $uid = $uidPrefix + $i
+    $mail = $uid + "@bdsu-connect.de"
+    $success = Create-Account $firstname $lastname $displayName $uid $mail $adminMail $password
+    if ($success) {
+        $migrationAccounts += @{"username" = $mail; "password" = $password}
+    } else {
+        Write-Host ("Unable to create user: " + $mail) -ForegroundColor Red
+    }
+}
+
+# time consuming  -> AD and Exchange can sync
+$mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"} | sort DisplayName
+
+#loop: waiting for exchange sync
+$migrationAccsAvailable =  $false
+while (!$migrationAccsAvailable) {
+        $migrationAccsAvailable = [bool] (Get-Mailbox -Identity $migrationAccounts[0] -ErrorAction SilentlyContinue)
+
+        if (!$migrationAccsAvailable) {
+                Write-Host "Admin users not available yet, retrying in $TIMEOUTS_SECS seconds"
+                Start-Sleep -Seconds $TIMEOUTS_SECS
+        }
+}
+
+
+# hide admin accounts from address list
+$migrationAccounts | ForEach-Object {
+    Set-Mailbox -Identity $_.username -HiddenFromAddressListsEnabled $true
+}
+
+$bulkSize = [math]::Floor($mailboxes.Length / $NUM_OF_ACCOUNTS)
+
+$i = 0
+$admincount = 0
+$admin = $migrationAccounts[0]
+$mailboxes | ForEach-Object {
+    if ($i % $bulkSize -eq 0 -and $i -lt ($bulkSize * $NUM_OF_ACCOUNTS)) {
+        $admin = $migrationAccounts[$admincount]
+        $admincount++
+    }
+    if ($admin) {
+        Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
+    }
+    $i++
+}
+
+$migrationAccounts | ForEach {[PSCustomObject]$_} | Format-Table -AutoSize
+
 
