@@ -1,5 +1,5 @@
 ﻿function Send-WelcomeMail($firstname, $lastname, $private_mail, $mail, $password) {
-    $sender = "JE IT <it@jedomain.de>"
+    $sender = "JE IT <it@je-domain.de>"
     $subject = "Zugangsdaten für deinen neuen Account"
     $body = @"
         Hallo $firstname,<br />
@@ -35,7 +35,6 @@
 }
 
 $sender_credentials = Get-Credential
-Connect-AzureAD -Credential $sender_credentials
 
 $csv = Import-Csv -Path P:\passwords.csv | sort Anzeigename
 $private_mails = @{}
@@ -43,16 +42,27 @@ Import-Csv -Path P:\private-mails.csv | ForEach-Object {
     $private_mails[$_.Username] = $_.email
 }
 
+$users = @{}
+Import-Csv -Path P:\import-users.csv | ForEach-Object {
+    $users[$_.'User Name'] = @{
+        GivenName = $_.'First Name';
+        Surname = $_.'Last Name';
+        UserPrincipalName = $_.'User Name'
+    }
+}
+
 Write-Host "Sende Passwort-Mails"
 $csv | Where-Object {
-    $private_mails[$_.Benutzername]
+    $private_mails[$_.Benutzername] -and $users[$_.Benutzername]
 } | ForEach-Object {
     $private_mail = $private_mails[$_.Benutzername]
+    
     [psCustomObject]@{
         Anzeigename = $_.Anzeigename
         Benutzername = $_.Benutzername
         "private E-Mail" = $private_mail
     }
-    $user = Get-AzureADUser -ObjectId $_.Benutzername
+
+    $user = $users[$_.Benutzername]
     Send-WelcomeMail $user.GivenName $user.Surname $private_mail $user.UserPrincipalName $_.Kennwort
 } | ft
