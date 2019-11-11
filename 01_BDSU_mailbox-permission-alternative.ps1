@@ -108,7 +108,7 @@ $mailboxes | ForEach-Object {
         $admincount++
     }
     if ($admin) {
-        Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin
+        Add-MailboxPermission -AccessRights FullAccess -InheritanceType All -AutoMapping $true -Identity $_.UserPrincipalName -User $admin.username
     }
     $i++
 }
