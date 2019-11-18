@@ -1,11 +1,11 @@
-﻿$sessions = Get-PSSession
-if ($sessions.ComputerName -notcontains "outlook.office365.com") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-    Import-PSSession $Session
-}
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
-$city = Read-Host -Prompt "Stadt"
-$domain = Read-Host -Prompt "JE-Domain"
+Ensure-ExchangeCommands
+
+$city = $je_city_name
+$domain = $original_domain
+
 
 $groups = @{
     "$city - MIT"                = "bdsu.mit@$domain"

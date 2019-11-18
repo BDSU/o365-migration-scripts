@@ -1,12 +1,8 @@
-﻿if (!$credentials) {
-    $credentials = Get-Credential
-}
+﻿. "$PSScriptRoot\utils.ps1"
 
-$sessions = Get-PSSession
-if ($sessions.ComputerName -notcontains "outlook.office365.com") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-    Import-PSSession $Session
-}
+Ensure-ExchangeCommands
+
+
 
 $csv = Import-Csv -Path P:\groups.csv
 

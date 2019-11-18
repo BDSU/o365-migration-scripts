@@ -1,18 +1,11 @@
-﻿if (!$credentials) {
-    $credentials = Get-Credential
-}
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
-$sessions = Get-PSSession
-if ($sessions.ComputerName -notcontains "outlook.office365.com") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-    Import-PSSession $Session
-}
+Ensure-AzureAD
+Ensure-ExchangeCommands
 
-Connect-AzureAD -Credential $credentials
-
-$old_domain = Read-Host -Prompt "Aktuelle Domain (je-domain.de)"
-$new_domain = Read-Host -Prompt "Neue Domain (je-domain.bdsu-connect.de)"
-
+$old_domain = $original_domain
+$new_domain = $tmp_domain
 
 $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$old_domain"} | sort DisplayName
 $mailboxes | ForEach-Object {

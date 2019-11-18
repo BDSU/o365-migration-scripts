@@ -1,11 +1,9 @@
-﻿if (!$credentials) {
-    $credentials = Get-Credential
-}
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
-Connect-AzureAD -Credential $credentials
+Ensure-AzureAD
 
-
-$domain = Read-Host -Prompt "Aktuelle Domain (je-domain.de)"
+$domain = $original_domain
 
 $groups = Get-AzureADGroup -All $true | Where-Object {$_.ProxyAddresses -like "*@$domain"} | sort DisplayName
 

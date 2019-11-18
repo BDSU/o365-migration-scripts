@@ -1,14 +1,9 @@
-﻿if (!$credentials) {
-    $credentials = Get-Credential
-}
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
-$sessions = Get-PSSession
-if ($sessions.ComputerName -notcontains "outlook.office365.com") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-    Import-PSSession $Session
-}
+Ensure-ExchangeCommands
 
-$domain = Read-Host -Prompt "Aktuelle Domain"
+$domain = $original_domain
 $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"} | sort DisplayName
 
 $i = 0

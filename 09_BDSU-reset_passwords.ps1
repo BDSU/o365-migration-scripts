@@ -1,10 +1,10 @@
-﻿if (!$credentials) {
-    $credentials = Get-Credential
-}
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
-Connect-AzureAD -Credential $credentials
+Ensure-AzureAD
 
-$domain = Read-Host -Prompt "Aktuelle Domain"
+$domain = $tmp_domain
+
 
 Write-Host "Setze Passwörter zurück"
 

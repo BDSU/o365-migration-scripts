@@ -1,4 +1,12 @@
-﻿function Create-Account($firstname, $lastname, $display_name, $uid, $mail, $private_mail, $password) {
+﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
+
+Ensure-AzureAD
+Ensure-ExchangeCommands
+
+$domain = $original_domain
+
+function Create-Account($firstname, $lastname, $display_name, $uid, $mail, $private_mail, $password) {
     $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
     $PasswordProfile.ForceChangePasswordNextLogin = $false
     $PasswordProfile.Password = $password
@@ -28,24 +36,6 @@ $NUM_OF_ACCOUNTS = 4
 $TIMEOUTS_SECS = 20
 
 $ErrorActionPreference = "Stop" #stop on error
-if (!$credentials) {
-    $credentials = Get-Credential
-}
-
-Connect-AzureAD -Credential $credentials
-
-$sessions = Get-PSSession
-if ($sessions.ComputerName -notcontains "outlook.office365.com") {
-    $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $credentials -Authentication Basic -AllowRedirection
-    Import-PSSession $Session
-}
-
-$domain = Read-Host -Prompt "Aktuelle Domain"
-
-if (!$domain) {
-    Write-Host "No domain provided. Please restart." -ForegroundColor Red
-    Exit
-}
 
 $jeId = $domain -replace ".de","" -replace ".com", ""
 
