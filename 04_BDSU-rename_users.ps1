@@ -7,15 +7,24 @@ Ensure-ExchangeCommands
 $old_domain = $original_domain
 $new_domain = $tmp_domain
 
+Write-Host "Ändere Benutzernamen"
+
+$accounts = Get-AzureADUser -All $true | Where-Object {$_.UserPrincipalName -like "*@$old_domain"} | sort DisplayName
+$accounts | ForEach-Object {
+    $_
+    $upn = $_.UserPrincipalName -replace "@$old_domain","@$new_domain"
+    Set-AzureADUser -ObjectId $_.ObjectId -UserPrincipalName $upn
+} | ft
+
+Write-Host "Ändere E-Mail-Adressen"
+
 $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$old_domain"} | sort DisplayName
 $mailboxes | ForEach-Object {
     $_
-    $upn = $_.UserPrincipalName -replace "@$old_domain","@$new_domain"
     $proxyAddresses = $_.EmailAddresses | ForEach-Object {
         $_ -replace "@$old_domain","@$new_domain"
     } | sort -Unique
-    Set-AzureADUser -ObjectId $_.UserPrincipalName -UserPrincipalName $upn
-    Set-Mailbox -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.UserPrincipalName
+    Set-Mailbox -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.DistinguishedName
 } | ft
 
 
