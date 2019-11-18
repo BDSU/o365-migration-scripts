@@ -57,7 +57,7 @@ $password = Read-Host "Password for all migration accounts"
 
 
 for($i = 0; $i -lt $NUM_OF_ACCOUNTS; $i++) { # [math]::Ceiling($userNum / $bulkSize)
-    $uid = $uidPrefix + $i
+    $uid = $uidPrefix + ($i + 1)
     $mail = $uid + "@bdsu-connect.de"
     $success = Create-Account $firstname $lastname $displayName $uid $mail $adminMail $password
     if ($success) {
