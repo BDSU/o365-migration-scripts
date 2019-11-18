@@ -1,7 +1,9 @@
 ﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
 Ensure-ExchangeCommands
 
+$domain = $original_domain
 
 
 $csv = Import-Csv -Path P:\groups.csv
@@ -12,7 +14,7 @@ $csv | ForEach-Object {
     $group = $_
     Write-Host $group.name
 
-    $group.members.Split("|") | Where-Object {$_} | ForEach-Object {
+    $group.members.Split("|") | Where-Object {$_ -like "*@$domain"} | ForEach-Object {
         Write-Host "`t$_"
         Add-DistributionGroupMember -Identity $group.mail -Member $_
     }

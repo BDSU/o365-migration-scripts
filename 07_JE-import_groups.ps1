@@ -1,6 +1,9 @@
 ﻿. "$PSScriptRoot\utils.ps1"
+. "$PSScriptRoot\00_config.ps1"
 
 Ensure-ExchangeCommands
+
+$domain = $original_domain
 
 $csv = Import-Csv -Path P:\groups.csv
 
@@ -14,7 +17,7 @@ $csv | ForEach-Object {
 Write-Host "Füge E-Mail-Addressen hinzu"
 $csv | ForEach-Object {
     $_
-    $proxyAddresses = $_.proxyAddresses.Split("|")
+    $proxyAddresses = $_.proxyAddresses.Split("|") | Where-Object {$_ -like "*@$domain"}
     Set-DistributionGroup -EmailAddresses $proxyAddresses -Identity $_.mail
 } | ft name,mail,proxyAddresses
 
