@@ -73,7 +73,7 @@ $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses
 #loop: waiting for exchange sync
 $migrationAccsAvailable =  $false
 while (!$migrationAccsAvailable) {
-        $migrationAccsAvailable = [bool] (Get-Mailbox -Identity $migrationAccounts[0].username -ErrorAction SilentlyContinue)
+        $migrationAccsAvailable = [bool] (Get-Mailbox -Identity $migrationAccounts[$NUM_OF_ACCOUNTS - 1].username -ErrorAction SilentlyContinue)
 
         if (!$migrationAccsAvailable) {
                 Write-Host "Admin users not available yet, retrying in $TIMEOUTS_SECS seconds"
