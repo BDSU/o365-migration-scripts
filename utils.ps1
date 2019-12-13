@@ -54,3 +54,23 @@ function Ensure-ExchangeCommands() {
         error-exit "Konnte Exchange-Session nicht importieren"
     }
 }
+
+function Get-MailboxSizes($domain) {
+    Ensure-ExchangeCommands
+
+    $mailboxes = Get-Mailbox -ResultSize Unlimited | Where-Object {$_.EmailAddresses -like "*@$domain"}
+    $stats = $mailboxes.userPrincipalName | Get-MailboxStatistics
+
+    $sum = 0
+    $stats | ForEach-Object {
+        $sum += $_.TotalItemSize.Value -replace "^.*\((.*) bytes\)",'$1' -replace ",",""
+
+        [psCustomObject]@{
+            stat = $_
+            size = [double]($_.TotalItemSize.Value -replace "^.*\((.*) bytes\)",'$1' -replace ",","")
+        }
+    } | sort size | ForEach-Object {$_.stat} | ft DisplayName,ItemCount,TotalItemSize,LastLogonTime
+
+    $total = [math]::Round($sum / 1024 / 1024 / 1024, 2)
+    Write-Host "Total: $total GB"
+}
