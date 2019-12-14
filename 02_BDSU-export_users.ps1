@@ -44,7 +44,7 @@ $import_csv | Export-Csv -Encoding UTF8 -NoTypeInformation -Path P:\import-users
 & {
     "Benutzername,Vorname,Nachname,Anzeigename,Position,Abteilung,Büronummer,Telefon (geschäftlich),Mobiltelefon,Faxnummer,Adresse,Ort,Bundesland/Kanton,Postleitzahl,Land oder Region"
     Get-Content P:\import-users.csv | Select-Object -Skip 1
-} | Set-Content -Path P:\import-users_de.csv
+} | Set-Content -Encoding UTF8 -Path P:\import-users_de.csv
 
 Write-Host "Exportiere erweiterte Postfach-Einstellungen"
 
