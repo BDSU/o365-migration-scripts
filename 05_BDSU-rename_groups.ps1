@@ -7,6 +7,8 @@ $old_domain = $original_domain
 $new_domain = $tmp_domain
 
 
+Write-Host "Lade Verteilergruppen"
+
 $groups = Get-DistributionGroup -ResultSize Unlimited | Where-Object {
     $_.EmailAddresses -like "*@$old_domain"
 }
@@ -18,6 +20,7 @@ $groups | ForEach-Object {
     Set-DistributionGroup -EmailAddresses $proxyAddresses -HiddenFromAddressListsEnabled $true -Identity $_.PrimarySmtpAddress -BypassSecurityGroupManagerCheck:$true
 } | ft
 
+Write-Host "Lade Office365-Gruppen"
 
 $ogroups = Get-UnifiedGroup -ResultSize Unlimited | Where-Object {
     $_.PrimarySmtpAddress -like "*@$old_domain"
