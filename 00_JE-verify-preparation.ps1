@@ -1,11 +1,12 @@
-﻿$csv = Import-Csv -Path P:\private-mails.csv 
+﻿. "$PSScriptRoot\00_config.ps1"
+$csv = Import-Csv -Path P:\private-mails.csv
 
 if ($csv[0].psobject.properties.name.Length -eq 2 -and $csv[0].psobject.properties.name[0].Trim() -eq "Username" -and $csv[0].psobject.properties.name[1].Trim() -eq "Email") {
 
     Write-Host "CSV structure OK" -ForegroundColor DarkGreen
 
     $incorrect = @()
-    $usernameLike = Read-Host "Username domain (any if empty)"
+    $usernameLike = $original_domain
     if ($usernameLike.Length -gt 0) {
         $usernameLike = "*@" + $usernameLike
     } else {
