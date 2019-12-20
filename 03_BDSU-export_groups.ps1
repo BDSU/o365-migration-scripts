@@ -11,7 +11,7 @@ $csv = $groups | Where-Object {
     $_.Mail -like "*@$domain"
 } | ForEach-Object {
     Write-Host $_.DisplayName
-    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId | ForEach-Object {
+    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId -All $true | ForEach-Object {
         if ($_.ObjectType -eq "Group") {
             $_.Mail
         } else {
@@ -39,7 +39,7 @@ if ($nonprimaries) {
 }
 
 $extramembers = $groups | Where-Object {
-    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId
+    $members = Get-AzureADGroupMember -ObjectId $_.ObjectId -All $true
     $extras = $members | Where-Object {$_.Mail -notlike "*@$domain"}
 }
 
